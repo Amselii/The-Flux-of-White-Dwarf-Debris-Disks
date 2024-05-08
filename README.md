@@ -1,4 +1,4 @@
-# Debris-Disk-Flux-Density
+# The Flux of White Dwarf Debris Disks
 
 The two classes IR_excess and Reflected_light found in Infrared_excess_class.py and Reflected_light_class.py respectively, are for plotting the flux density
 of white dwarf debris disks.
