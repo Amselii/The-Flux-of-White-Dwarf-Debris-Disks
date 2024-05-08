@@ -14,7 +14,14 @@ class IR_excess:
     
     def __init__(self, a_i, a_o, R_s, T_s, val, LF = None, ln = None, Jansky = False, mJansky = False):
         
-
+        if not isinstance(a_i, (float, int)):
+            raise TypeError("a_i has to be of type float or int.")
+        if not isinstance(a_o, (float, int)):
+            raise TypeError("a_o has to be of type float or int.")
+        if not isinstance(R_s, (float, int)):
+            raise TypeError("R_s has to be of type float or int.")
+        if not isinstance(T_s, (float, int)):
+            raise TypeError("T_s has to be of type float or int.")
         if not isinstance(val, list):
             raise TypeError("val has to be of type list containing the distance d and inclination inc.")
         if len(val) != 2:
@@ -64,7 +71,7 @@ class IR_excess:
                 
                 if self.LF == "Flux":
                     
-                    return np.pi*np.cos(np.deg2rad(self.inc))/self.d**2*B_l*self.R_s**2 
+                    return np.pi/self.d**2*B_l*self.R_s**2 
             
             if self.ln == "Frequency":
                 nu = xval[1]
@@ -77,7 +84,7 @@ class IR_excess:
                 
                 if self.LF == "Flux":
                     
-                    return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*self.R_s**2 
+                    return np.pi/(self.d**2)*B_n*self.R_s**2 
         else:
             
             Jy = np.array([1e26 if self.mJansky == False else 1e29])[0]
@@ -89,14 +96,14 @@ class IR_excess:
                 
                 B_n = 2*h*nu**3/(c**2)*1/(np.exp(h*nu/(k_B*T))-1)
                     
-                return np.pi*np.cos(np.deg2rad(self.inc))/self.d**2*B_n*self.R_s**2*Jy 
+                return np.pi/self.d**2*B_n*self.R_s**2*Jy 
             
             if self.ln == "Frequency":
                 nu = xval[1]
                 
                 B_n = 2*h*nu**3/(c**2)*1/(np.exp(h*nu/(k_B*T))-1)
                 
-                return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*self.R_s**2*Jy
+                return np.pi/(self.d**2)*B_n*self.R_s**2*Jy
     
     def Blackbody_Disk(self, xval, T_d):
         
@@ -117,11 +124,11 @@ class IR_excess:
                 
                 if self.LF == "Luminosity":
                     
-                    return 4*np.pi**2*B_l*lamda*(self.a_i-self.a_o)**2
+                    return 4*np.pi**2*B_l*lamda*(self.a_o**2-self.a_i**2)
                 
                 if self.LF == "Flux":
                     
-                    return np.pi*np.cos(np.deg2rad(self.inc))/self.d**2*B_l*(self.a_o-self.a_i)**2 
+                    return np.pi*np.cos(np.deg2rad(self.inc))/self.d**2*B_l*(self.a_o**2-self.a_i**2)
             
             if self.ln == "Frequency":
                 nu = xval[1]
@@ -130,11 +137,12 @@ class IR_excess:
                 
                 if self.LF == "Luminosity":
                     
-                    return 4*np.pi**2*B_n*nu*(self.a_i-self.a_o)**2
+                    return 4*np.pi**2*B_n*nu*(self.a_o**2-self.a_i**2)
                 
                 if self.LF == "Flux":
                     
-                    return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o-self.a_i)**2
+                    return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o**2-self.a_i**2)
+            
         else:
             
             Jy = np.array([1e26 if self.mJansky == False else 1e29])[0]
@@ -146,17 +154,16 @@ class IR_excess:
                 
                 B_n = 2*h*nu**3/(c**2)*1/(np.exp(h*nu/(k_B*T))-1)
                     
-                return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o-self.a_i)**2*Jy 
+                return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o**2-self.a_i**2)*Jy 
             
             if self.ln == "Frequency":
                 nu = xval[1]
                 
                 B_n = 2*h*nu**3/(c**2)*1/(np.exp(h*nu/(k_B*T))-1)
                 
-                return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o-self.a_i)**2*Jy
+                return np.pi*np.cos(np.deg2rad(self.inc))/(self.d**2)*B_n*(self.a_o**2-self.a_i**2)*Jy
         
-            
-        
+
         
     def Flat_Debris_Disk(self, xval, alb = None, pf = None):
         
@@ -223,7 +230,7 @@ class IR_excess:
         
         else:
             
-            C = 2*np.pi*np.cos(self.inc)/self.d**2*Jy
+            C = 2*np.pi*np.cos(np.deg2rad(self.inc))/self.d**2*Jy
             
             if self.ln == "Wavelength":
                 nu = c/xval[0]
@@ -247,7 +254,7 @@ class IR_excess:
                 I.append(sc.integrate.quad(f, self.a_i, self.a_o)[0])
         
             return C * np.array(I)*Packing_Fraction
-        
+    
         
     def Plotting(self, xval, xlim, func, ylim, label, log = False):
         
@@ -268,7 +275,6 @@ class IR_excess:
         if not isinstance(log, bool):
             raise TypeError("log has to be of type bool.")
 
-       
       
         if log == True:
             ax.set_xscale("log")
@@ -283,23 +289,23 @@ class IR_excess:
                 formatter = lambda x, pos: f'{(x / 10**(-6)):0.0000001f}'
                 
                 ax.xaxis.set_major_formatter(formatter)
-                ax.set_xlabel(r"$\lambda$ ($\mu$m)", fontsize = 20)
+                ax.set_xlabel(r"$\lambda$ ($\mu$m)")
                 
     
                 if self.LF == "Luminosity":
-                    ax.set_ylabel(r"$L_{\lambda} ( \, W)$ ", fontsize = 20)
+                    ax.set_ylabel(r"$L_{\lambda} ( \, W)$ ")
                 else:
-                    ax.set_ylabel(r"$F_{\lambda} (W/m^{3})$ ", fontsize = 20)
+                    ax.set_ylabel(r"$F_{\lambda} (W/m^{3})$ ")
             
             if self.ln == "Frequency":
-                ax.set_xlabel(r"$\nu$ (Hz)", fontsize = 20)
+                ax.set_xlabel(r"$\nu$ (Hz)")
                 
                 xVal = xval[1]
                 
                 if self.LF == "Luminosity":
-                    ax.set_ylabel(r"$L_{\nu} (\, W)$ ", fontsize = 20)                
+                    ax.set_ylabel(r"$L_{\nu} (\, W)$ ")                
                 else: 
-                    ax.set_ylabel(r"$F_{\nu} \, (W \cdot m^{-2} Hz^{-1})$ ", fontsize = 20) 
+                    ax.set_ylabel(r"$F_{\nu} \, (W \cdot m^{-2} Hz^{-1})$ ") 
         
         else:
             
@@ -308,24 +314,21 @@ class IR_excess:
                 formatter = lambda x, pos: f'{(x / 10**(-6)):0.0000001f}'
                 
                 ax.xaxis.set_major_formatter(formatter)
-                ax.set_xlabel(r"$\lambda$ ($\mu$m)",  fontsize = 20)
+                ax.set_xlabel(r"$\lambda$ ($\mu$m)")
                 
                 xVal = xval[0]
             
             else:
-                ax.set_xlabel(r"$\nu$ (Hz)", fontsize = 20)
+                ax.set_xlabel(r"$\nu$ (Hz)")
                 xVal = xval[1]
             
-            ax.set_ylabel(r"$F \, (Jy)$ ", fontsize = 20)
+            ax.set_ylabel(r"$F \, (Jy)$ ")
             if self.mJansky == True:
-                ax.set_ylabel(r"$F \, (mJy)$ ", fontsize = 20)
+                ax.set_ylabel(r"$F \, (mJy)$")
         
         ax.set_xlim(xlim[0], xlim[1])
         ax.set_ylim(ylim[0], ylim[1])
-        plt.xticks(fontsize = 18)
-        plt.yticks(fontsize = 18)
-        
-            
+
         plot = plt.plot(xVal, func, label=f'{label}')   
         
         return plot
